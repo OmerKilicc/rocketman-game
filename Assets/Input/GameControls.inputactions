@@ -1,0 +1,54 @@
+{
+    "name": "GameControls",
+    "maps": [
+        {
+            "name": "Touch",
+            "id": "9af3b4f7-f31e-4c94-8bf2-f66a83f3f4a2",
+            "actions": [
+                {
+                    "name": "TouchPosition",
+                    "type": "Value",
+                    "id": "d5c5c7e4-f63c-4c54-9580-d2d2f0c10b6b",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "TouchPress",
+                    "type": "Button",
+                    "id": "d8d47917-d34e-4ba4-9b32-f587e3e76b7d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Press",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "2a0e7c0d-8f81-4f63-8b41-f5c6a9e54c67",
+                    "path": "<Touchscreen>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "TouchPosition",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7c2f3a5e-9c5d-4e8a-bf0f-f5b3d54d6e23",
+                    "path": "<Touchscreen>/primaryTouch/press",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "TouchPress",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
