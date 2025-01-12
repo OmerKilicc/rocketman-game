@@ -6,18 +6,15 @@ using UnityEngine;
 [RequireComponent(typeof(Animator))]
 public class StickInputController : MonoBehaviour
 {
+    public VoidGameEvent StickReleasedEvent;
     private Animator _animator;
 
-    [Header("Settings")]
-    [SerializeField] 
-    [Tooltip("How sensitive the stick is to touch movement")]
+    [Header("Settings")] [SerializeField] [Tooltip("How sensitive the stick is to touch movement")]
     private float _sensitivity = 0.01f;
-    
-    [SerializeField]
-    [Tooltip("Maximum amount the stick can bend")]
-    [Range(0f, 1f)]
+
+    [SerializeField] [Tooltip("Maximum amount the stick can bend")] [Range(0f, 1f)]
     private float _maxBendAmount = 1f;
-    
+
     private float _currentBendAmount;
     private bool _isReleasing;
 
@@ -28,17 +25,7 @@ public class StickInputController : MonoBehaviour
 
     private void Start()
     {
-        ValidateReferences();
-    }
-
-    private void OnEnable()
-    {
-        SubscribeToEvents();
-    }
-
-    private void OnDisable()
-    {
-        UnsubscribeFromEvents();
+        _animator = GetComponent<Animator>();
     }
 
     private void Update()
@@ -50,18 +37,13 @@ public class StickInputController : MonoBehaviour
 
     #region Event Handlers
 
-    private void HandleTouchMove(Vector2 delta)
+    public void HandleTouchMove(Vector2 delta)
     {
         ResetReleaseState();
         UpdateBendAmount(delta);
     }
 
-    private void HandleTouchEnd(Vector2 position)
-    {
-        StartRelease();
-    }
-
-    private void HandleTouchCancel()
+    public void HandleTouchCancelled(Vector2 position)
     {
         StartRelease();
     }
@@ -69,38 +51,6 @@ public class StickInputController : MonoBehaviour
     #endregion
 
     #region Private Methods
-
-    private void ValidateReferences()
-    {
-        if (_animator == null)
-        {
-            _animator = GetComponent<Animator>();
-        }
-    }
-
-    private void SubscribeToEvents()
-    {
-        if (TouchInputHandler.Instance != null)
-        {
-            TouchInputHandler.Instance.OnTouchMoved += HandleTouchMove;
-            TouchInputHandler.Instance.OnTouchEnded += HandleTouchEnd;
-            TouchInputHandler.Instance.OnTouchCanceled += HandleTouchCancel;
-        }
-        else
-        {
-            Debug.LogWarning("TouchInputHandler instance not found!");
-        }
-    }
-
-    private void UnsubscribeFromEvents()
-    {
-        if (TouchInputHandler.Instance != null)
-        {
-            TouchInputHandler.Instance.OnTouchMoved -= HandleTouchMove;
-            TouchInputHandler.Instance.OnTouchEnded -= HandleTouchEnd;
-            TouchInputHandler.Instance.OnTouchCanceled -= HandleTouchCancel;
-        }
-    }
 
     private void ResetReleaseState()
     {
@@ -119,6 +69,7 @@ public class StickInputController : MonoBehaviour
     {
         _animator.SetBool(IsReleasedParam, true);
         _isReleasing = true;
+        StickReleasedEvent.Raise();
     }
 
     private void HandleRelease()
@@ -134,4 +85,4 @@ public class StickInputController : MonoBehaviour
     }
 
     #endregion
-} 
+}
