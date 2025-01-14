@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 4329524900267050539}
   - component: {fileID: 3693386889727163872}
   - component: {fileID: 6683317358726114584}
+  - component: {fileID: 8504635083799921900}
+  - component: {fileID: 8407553133312600222}
   - component: {fileID: 6895720417424148868}
   - component: {fileID: 2137034819050242520}
   - component: {fileID: 2734224622893855325}
@@ -87,7 +89,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
 --- !u!135 &3693386889727163872
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -123,6 +125,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _tipOfStick: {fileID: 0}
   _playerStartPosition: {x: 0, y: 26.35, z: 9}
+--- !u!114 &8504635083799921900
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6380671583493732553}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af86167151323ff4da92c1d7c2f5fda6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  onPlayerDeathEvent: {fileID: 11400000, guid: 2d59a619503987a429db9a58dc659771, type: 2}
+--- !u!114 &8407553133312600222
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6380671583493732553}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d253d50ec71b804286e591985e598d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerComponents:
+  - {fileID: 6895720417424148868}
+  - {fileID: 8504635083799921900}
+  - {fileID: 2137034819050242520}
+  - {fileID: 2734224622893855325}
+  - {fileID: 643992715320788082}
 --- !u!114 &6895720417424148868
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -135,16 +168,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b759a643ac7a413490ad54d2e4ade3d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  childsTransform: {fileID: 1800684913960683894}
   stickBendAmount: {fileID: 11400000, guid: caa549fe2a4495d429deb9dbeda4bdfd, type: 2}
-  speedMultiplier: 50
+  throwSpeedMultiplier: 5
   gravityMultiplierFalling: 1
-  shotAngle: 30
-  gravityMultiplierGliding: 0.1
-  glidingTurnSensitivityY: 10
-  glidingTurnSensitivityZ: 10
-  rotateSpeed: 720
-  smoothRotationMultiplier: 2
-  playerGlidingRotation: 45
+  shotAngle: 45
+  targetForwardVelocity: 50
+  dragForce: 5
+  initialUpwardsMultiplier: 70
+  gravityMultiplierGliding: 0.3
+  turnSpeed: 5
+  turnAmount: 0.1
+  rollSpeed: 720
+  currentRolAngle: 1
+  rollAmount: 0.1
+  maxRolAngle: 30
 --- !u!114 &2137034819050242520
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -161,7 +199,7 @@ MonoBehaviour:
   Response:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 6895720417424148868}
         m_TargetAssemblyTypeName: PlayerMovement, Assembly-CSharp
         m_MethodName: StartGliding
         m_Mode: 0
@@ -189,7 +227,7 @@ MonoBehaviour:
   Response:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 6895720417424148868}
         m_TargetAssemblyTypeName: PlayerMovement, Assembly-CSharp
         m_MethodName: SetTouchDelta
         m_Mode: 0
@@ -217,9 +255,9 @@ MonoBehaviour:
   Response:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 6895720417424148868}
         m_TargetAssemblyTypeName: PlayerMovement, Assembly-CSharp
-        m_MethodName: SetTouchDelta
+        m_MethodName: ExitGliding
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
