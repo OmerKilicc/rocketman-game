@@ -20,7 +20,7 @@ public class InputManager : MonoBehaviour
                     break;
 
                 case TouchPhase.Moved:
-                    OnTouchMoved.Invoke(touch.deltaPosition);
+                    OnTouchMoved.Invoke(touch.position);
                     break;
 
                 case TouchPhase.Ended:

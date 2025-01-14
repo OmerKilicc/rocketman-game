@@ -1,4 +1,6 @@
+using SOs.Variables;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 /// <summary>
 /// Controls the stick's bending animation based on touch input.
@@ -6,41 +8,55 @@ using UnityEngine;
 [RequireComponent(typeof(Animator))]
 public class StickInputController : MonoBehaviour
 {
-    public VoidGameEvent StickReleasedEvent;
+    #region Variable
+    
+    public VoidGameEvent stickReleasedEvent;
     private Animator _animator;
-
-    [Header("Settings")] [SerializeField] [Tooltip("How sensitive the stick is to touch movement")]
-    private float _sensitivity = 0.01f;
-
-    [SerializeField] [Tooltip("Maximum amount the stick can bend")] [Range(0f, 1f)]
-    private float _maxBendAmount = 1f;
-
-    private float _currentBendAmount;
-    private bool _isReleasing;
+    private Vector2 _firstTouchPosition;
+    private Vector2 _touchDelta;
+    
+    [Header("Settings")] 
+    [Tooltip("How sensitive the stick is to touch movement")]
+    [SerializeField] private float sensitivity = 0.01f;
+    
+    [Tooltip("Maximum amount the stick can bend")] 
+    [Range(0f, 1f)]
+    [SerializeField] private float maxBendAmount = 1f;
+    
+    [SerializeField] private FloatVariable currentBendAmount;
 
     private static readonly int BendAmountParam = Animator.StringToHash("BendAmount");
     private static readonly int IsReleasedParam = Animator.StringToHash("IsReleased");
+    
 
+    #endregion
+    
     #region Unity Lifecycle
 
     private void Start()
     {
         _animator = GetComponent<Animator>();
+        currentBendAmount.SetValue(0);
     }
 
     private void Update()
     {
-        HandleRelease();
+        _animator.SetFloat(BendAmountParam, currentBendAmount.Value);
     }
 
     #endregion
 
-    #region Event Handlers
+    #region Event Handler
 
-    public void HandleTouchMove(Vector2 delta)
+    public void HandleTouchEnter(Vector2 position)
     {
-        ResetReleaseState();
-        UpdateBendAmount(delta);
+        _firstTouchPosition = position;
+    }
+    public void HandleTouchMove(Vector2 lastTouchPosition)
+    {
+        _touchDelta = lastTouchPosition - _firstTouchPosition;
+        //Debug.Log(_touchDelta);
+        UpdateBendAmount(_touchDelta.x);
     }
 
     public void HandleTouchCancelled(Vector2 position)
@@ -51,37 +67,22 @@ public class StickInputController : MonoBehaviour
     #endregion
 
     #region Private Methods
-
-    private void ResetReleaseState()
-    {
-        _animator.SetBool(IsReleasedParam, false);
-        _isReleasing = false;
-    }
-
-    private void UpdateBendAmount(Vector2 delta)
-    {
-        float bendDelta = -delta.x * _sensitivity;
-        _currentBendAmount = Mathf.Clamp(_currentBendAmount + bendDelta, -_maxBendAmount, _maxBendAmount);
-        UpdateBendAnimation();
-    }
-
+    
     private void StartRelease()
     {
+        if (currentBendAmount.Value <= 0)
+        {
+            Debug.Log("Stick is dragged in wrong position");
+            return;
+        }
         _animator.SetBool(IsReleasedParam, true);
-        _isReleasing = true;
-        StickReleasedEvent.Raise();
+        stickReleasedEvent.Raise();
     }
 
-    private void HandleRelease()
+    private void UpdateBendAmount(float touchDeltaX)
     {
-        if (!_isReleasing || Mathf.Approximately(_currentBendAmount, 0f)) return;
-
-        UpdateBendAnimation();
-    }
-
-    private void UpdateBendAnimation()
-    {
-        _animator.SetFloat(BendAmountParam, _currentBendAmount);
+        float bendDelta = -touchDeltaX * sensitivity;
+        currentBendAmount.SetValue(Mathf.Clamp(bendDelta, 0, maxBendAmount));
     }
 
     #endregion
