@@ -232,7 +232,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2114716026977529500}
         m_TargetAssemblyTypeName: Player.PlayerMovement, Assembly-CSharp
-        m_MethodName: HandleGliding
+        m_MethodName: SetTouchDelta
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
