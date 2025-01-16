@@ -33,15 +33,9 @@ public class StickInputController : MonoBehaviour
     
     #region Unity Lifecycle
 
-    private void Start()
+    private void Awake()
     {
         _animator = GetComponent<Animator>();
-        currentBendAmount.SetValue(0);
-    }
-
-    private void Update()
-    {
-        _animator.SetFloat(BendAmountParam, currentBendAmount.Value);
     }
 
     #endregion
@@ -55,7 +49,7 @@ public class StickInputController : MonoBehaviour
     public void HandleTouchMove(Vector2 lastTouchPosition)
     {
         _touchDelta = lastTouchPosition - _firstTouchPosition;
-        //Debug.Log(_touchDelta);
+        Debug.Log(_touchDelta);
         UpdateBendAmount(_touchDelta.x);
     }
 
@@ -83,6 +77,13 @@ public class StickInputController : MonoBehaviour
     {
         float bendDelta = -touchDeltaX * sensitivity;
         currentBendAmount.SetValue(Mathf.Clamp(bendDelta, 0, maxBendAmount));
+        _animator.SetFloat(BendAmountParam, currentBendAmount.Value);
+    }
+
+    public void SetToInitialState()
+    {
+        currentBendAmount.Value = 0;
+        _animator.SetBool(IsReleasedParam, false);
     }
 
     #endregion

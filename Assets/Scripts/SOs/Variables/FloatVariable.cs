@@ -2,7 +2,7 @@
 
 namespace SOs.Variables
 {
-    [CreateAssetMenu]
+    [CreateAssetMenu(fileName = "FloatVariable", menuName = "SOs/Variables/Float")]
     public class FloatVariable : ScriptableObject
     {
 #if UNITY_EDITOR
