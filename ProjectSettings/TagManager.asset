@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Jumper
   - Obstacles
+  - Cylinder
+  - Prism
   layers:
   - Default
   - TransparentFX
