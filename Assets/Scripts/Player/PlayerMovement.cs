@@ -1,4 +1,5 @@
-﻿using SOs.Variables;
+﻿using System;
+using SOs.Variables;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -7,33 +8,33 @@ public class PlayerMovement : MonoBehaviour
     #region Variables
 
     private const float Gravity = -9.81f;
-    private const float TerminalVelocity = 20f;
-    
+
+    private Rigidbody _rigidbody;
     private Animator _animator;
     private Vector2 _firstTouchPosition;
     private Vector2 _touchDelta;
     private Vector3 _position;
     private Vector3 _velocity;
-    //private Quaternion _glidingAngle;
     private Quaternion _targetRotation;
     
     private bool _isGliding = false;
     private int _isGlidingHash;
     private float _currentForwardVelocity;
+    private bool _isDead = false;
+    private bool _canMove = false;
     
     [SerializeField] private Transform childsTransform;
-
     [SerializeField] private FloatVariable stickBendAmount;
 
     [Header("Shot Settings")] 
-    [Tooltip("Initial shot speed multiplier")] 
-    [SerializeField] private float throwSpeedMultiplier;
+    [SerializeField] private float forwardSpeedMultiplier;
+    [SerializeField] private float upwardsSpeedMultiplier = 10f;
     [SerializeField] private float gravityMultiplierFalling = 1f;
     [Tooltip("Bigger degree means the player will go higher etc.")] 
     [SerializeField] private float shotAngle = 45f;
     [SerializeField] private float targetForwardVelocity = 100f;
     [SerializeField] private float dragForce = 10f;
-    [SerializeField] private float initialUpwardsMultiplier = 10f;
+    [SerializeField] private float terminalVelocity = 20f;
 
     [Header("Gliding Settings")] 
     [Tooltip("To make player go down more slowly than falling")] 
@@ -48,20 +49,23 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float currentRolAngle = 1f;
     [SerializeField] private float rollAmount = 10f;
     [SerializeField] private float maxRolAngle = 30f;
-
+    
     #endregion
 
     #region Unity LifeCycle
 
-    private void Start()
+    private void Awake()
     {
         _animator = GetComponent<Animator>();
+        _rigidbody = GetComponent<Rigidbody>();
         _isGlidingHash = Animator.StringToHash("isGliding");
-        Initialize();
     }
 
     private void Update()
     {
+        if (!_canMove)
+            return;
+        
         // Air drag calculation
         if (_currentForwardVelocity > targetForwardVelocity)
         {
@@ -112,7 +116,7 @@ public class PlayerMovement : MonoBehaviour
         Rotate();
     }
 
-    //OnTouchCancelled
+    //onTouchCancelled
     public void ExitGliding(Vector2 position)
     {
         // Disable the animation
@@ -127,7 +131,21 @@ public class PlayerMovement : MonoBehaviour
     #endregion
 
     #region Private Methods
-
+    private void Rotate()
+    {
+        Quaternion yawRotate = Quaternion.Euler(0,_touchDelta.x * turnAmount,0);
+        
+        // Rotate target in yaw with calculated amount based on touchDelta
+        _targetRotation *= yawRotate;
+    }
+    
+    private Vector3 ForwardVelocityOnXZPlane(Vector3 forward)
+    {
+        forward.y = 0;
+        return forward.normalized;
+    }
+    
+    
     private Vector3 ProjectileMotion(float gravityMultiplier)
     {
         Vector3 forward = ForwardVelocityOnXZPlane(transform.forward);
@@ -137,27 +155,56 @@ public class PlayerMovement : MonoBehaviour
         _velocity.z = forward.z;
         
         _velocity.y += Gravity * gravityMultiplier * Time.deltaTime;
-        _velocity.y = Mathf.Clamp(_velocity.y, -TerminalVelocity, TerminalVelocity);
+        _velocity.y = Mathf.Clamp(_velocity.y, -terminalVelocity, terminalVelocity);
         
         _position += _velocity * Time.deltaTime;
         
         return _position;
     }
 
-    private void Rotate()
+    #endregion
+
+    #region Public Methods
+
+    public void DeathMovement()
     {
-        Quaternion yawRotate = Quaternion.Euler(0,_touchDelta.x * turnAmount,0);
+        if (_isDead)
+        {
+            return;
+        }
         
-        // Rotate target in yaw with calculated amount based on touchDelta
-        _targetRotation *= yawRotate;
+        _isDead = true;
+        _rigidbody.useGravity = true;
+        _rigidbody.velocity = _velocity;
     }
-    private void Initialize()
+
+    public void AddForce(float jumpMultiplierFromPlatform)
+    {
+        _velocity.y = 1;
+        _velocity.y *= jumpMultiplierFromPlatform;
+    }
+    
+    public void Initialize()
+    {
+        _isDead = false;
+        
+        _rigidbody.useGravity = false;
+        _rigidbody.velocity = Vector3.zero;
+        _rigidbody.angularVelocity = Vector3.zero;
+        
+        transform.localRotation = Quaternion.identity;
+        childsTransform.localRotation = Quaternion.identity;
+        _velocity = Vector3.zero;
+
+        _animator.SetBool(_isGlidingHash, false);
+    }
+    public void ShotFromStick()
     {
         float angleInRadians = shotAngle * Mathf.Deg2Rad;
-        float throwForce = stickBendAmount.Value * throwSpeedMultiplier;
+        float throwForce = stickBendAmount.Value * forwardSpeedMultiplier;
         
         float forwardSpeed = throwForce * targetForwardVelocity  * Mathf.Cos(angleInRadians);
-        float upwardSpeed = throwForce * initialUpwardsMultiplier * Mathf.Sin(angleInRadians);
+        float upwardSpeed = throwForce * upwardsSpeedMultiplier * Mathf.Sin(angleInRadians);
 
         _currentForwardVelocity = forwardSpeed;
         _velocity = new Vector3(0, upwardSpeed, forwardSpeed);
@@ -166,10 +213,9 @@ public class PlayerMovement : MonoBehaviour
         _position = transform.position;
     }
 
-    private Vector3 ForwardVelocityOnXZPlane(Vector3 forward)
+    public void SetCanMove(bool canMove)
     {
-        forward.y = 0;
-        return forward.normalized;
+        _canMove = canMove;
     }
 
     #endregion
