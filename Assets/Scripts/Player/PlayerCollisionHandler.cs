@@ -4,17 +4,32 @@ using UnityEngine;
 
 public class PlayerCollisionHandler : MonoBehaviour
 {
-    [SerializeField] VoidGameEvent onPlayerDeathEvent;
+    [SerializeField] private VoidGameEvent onPlayerDeathEvent;
+    [SerializeField] private float prismJumpMultiplier;
+    [SerializeField] private float cylinderJumpMultiplier;
+    
+    PlayerMovement _playerMovement;
+
+    private void Start()
+    {
+        _playerMovement = GetComponent<PlayerMovement>();
+    }
+
     private void OnCollisionEnter(Collision other)
     {
-        Debug.Log("Player collided with " + other.gameObject.name);
-        if (other.gameObject.CompareTag("Jumper"))
+        if (other.gameObject.CompareTag("Prism"))
         {
-            // TODO: Make it jump again?
+            _playerMovement.AddForce(prismJumpMultiplier);
+        }
+        else if (other.gameObject.CompareTag("Cylinder"))
+        {
+            _playerMovement.AddForce(cylinderJumpMultiplier);
         }
         else if(other.gameObject.CompareTag("Obstacles"))
         {
             onPlayerDeathEvent.Raise();
+            _playerMovement.DeathMovement();
+            _playerMovement.SetCanMove(false);
         }
     }
 }
