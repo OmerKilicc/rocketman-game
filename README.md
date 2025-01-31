@@ -111,25 +111,6 @@ Assets/
 - Efficient memory management
 - No scene reloading for restarts
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch
-3. Commit changes with meaningful messages
-4. Push to the branch
-5. Create a Pull Request
-
-## 📝 Notes
-
-- Built for mobile platforms (iOS/Android)
-- Similar gameplay style to Pokey Ball
-- Focuses on smooth, enjoyable gameplay experience
-- Minimal graphics requirements - color differentiation is sufficient
-
-## 📜 License
-
-[Your License Here]
-
 ---
 
 Built with Unity 2022.3.55
