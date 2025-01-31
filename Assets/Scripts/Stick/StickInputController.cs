@@ -76,13 +76,14 @@ public class StickInputController : MonoBehaviour
     private void UpdateBendAmount(float touchDeltaX)
     {
         float bendDelta = -touchDeltaX * sensitivity;
-        currentBendAmount.SetValue(Mathf.Clamp(bendDelta, 0, maxBendAmount));
+        currentBendAmount.SetValue(Mathf.Clamp(bendDelta, 0, maxBendAmount - 0.25f));
         _animator.SetFloat(BendAmountParam, currentBendAmount.Value);
     }
 
     public void SetToInitialState()
     {
         currentBendAmount.Value = 0;
+        _animator.SetFloat(BendAmountParam, currentBendAmount.Value);
         _animator.SetBool(IsReleasedParam, false);
     }
 
